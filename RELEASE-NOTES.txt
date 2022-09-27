@@ -1,0 +1,36 @@
+---------------------------------------------------------------------
+
+TAG entrega1
+
+---------------------------------------------------------------------
+
+NEW FEATURES:
+
+* SWAGGER-UI: integrado swagger 3 para documentación de endpoints en el path /api/swagger-ui/index.html
+* SERVICIOS API-REST: Se implementaron nuevos endpoints
+  - POST api/users
+    Recibe un nuevo usuario, lo valida y lo crea en el sistema.
+  - GET  api/users
+    Retorna todos los usuarios creados en el sistema
+  - GET  api/users/{id}
+    Dado un id, retorna un usuario del sistema
+  - GET  /cryptos/price/{symbol}
+    Retona la cotización actual de la criptomoneda con el symbol dado
+  - GET  /cryptos/price/{symbol}/24hs
+    Retona las cotización de las últimas 24hs de la criptomoneda con el symbol dado.
+    Las cotizaciones son devueltas en un array que contiene todas las cotizaciones de las últimas 24hs con una ventana de tiempo de
+    15 minutos entre cotización y cotización
+* Integración continua con Github Actions
+* Integración con SonarCloud
+* Integración continua con Heroku
+
+NOTES:
+
+* Están implementados y funcionando los ejercicios 1, 2 y 3 del trabajo práctico
+* Se está usando una base de datos en memoria h2 para persistir datos de la aplicación. Estos datos se pierden durante el apagado o reinicio de la app
+* Al ser deployada la aplicación se crean automaticamente 3 usuarios. Esto es a modo demo y solo sucede cuando está activo el perfil development
+  en el application.yml
+
+KNOWN ISSUES:
+
+* spring-security está configurado y funcionando pero debido a problemas con la autenticación de usuarios ningún endpoint está segurizado en esta versión
