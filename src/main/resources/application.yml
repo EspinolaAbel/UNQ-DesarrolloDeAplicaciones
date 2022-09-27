@@ -1,0 +1,11 @@
+spring:
+  profiles.active: development
+  mvc:
+    pathmatch.matching-strategy: ant_path_matcher
+    servlet.path: "/api"
+
+app.api:
+  binance.url: "https://api1.binance.com/api/"
+
+# spring-dev tools
+server.error.include-stacktrace: never
