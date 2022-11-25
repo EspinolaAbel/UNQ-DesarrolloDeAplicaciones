@@ -3,7 +3,7 @@ package ar.edu.unq.desapp.grupoN.desapp.model;
 /**
  * All supported criptocurrency symbols
  */
-enum class SymbolsEnum {
+enum class Symbol {
     AAVEUSDT,
     ADAUSDT,
     ALICEUSDT,

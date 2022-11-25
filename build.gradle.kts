@@ -6,6 +6,7 @@ plugins {
 	id("org.sonarqube") version "3.4.0.2513"
 	war
 	kotlin("jvm") version "1.6.21"
+	kotlin("kapt") version "1.5.10"
 	kotlin("plugin.spring") version "1.6.21"
 	kotlin("plugin.jpa") version "1.6.21"
 }
@@ -35,6 +36,9 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.mapstruct:mapstruct:1.5.3.Final")
+	kapt("org.mapstruct:mapstruct-processor:1.5.3.Final")
+	//annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")

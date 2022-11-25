@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.model.configuration
+package ar.edu.unq.desapp.grupoN.desapp.configuration
 
 import ar.edu.unq.desapp.grupoN.desapp.webservice.UserController
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.UserDTO

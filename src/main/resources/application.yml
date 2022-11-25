@@ -3,6 +3,17 @@ spring:
   mvc:
     pathmatch.matching-strategy: ant_path_matcher
     servlet.path: "/api"
+  h2:
+    console.enabled: true
+  jpa:
+    hibernate.ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  datasource:
+    #url: jdbc:h2:mem:desapp
+    url: jdbc:h2:~/desapp;DB_CLOSE_ON_EXIT=FALSE
+    username: ''
+    password: ''
+    driverClassName: org.h2.Driver
 
 app.api:
   binance.url: "https://api1.binance.com/api/"

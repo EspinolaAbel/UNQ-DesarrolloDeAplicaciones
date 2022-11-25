@@ -1,12 +1,15 @@
 package ar.edu.unq.desapp.grupoN.desapp.service
 
-import ar.edu.unq.desapp.grupoN.desapp.model.SymbolsEnum
+import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.PriceWithDatetime
+import ar.edu.unq.desapp.grupoN.desapp.model.mapping.AdvertisementMapper
+import ar.edu.unq.desapp.grupoN.desapp.persistence.AdvertisementRepository
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyString
-import org.mockito.Mockito.mock
+import org.mockito.MockitoAnnotations
 import org.springframework.web.client.RestTemplate
 import java.time.Instant
 import kotlin.test.BeforeTest
@@ -15,13 +18,22 @@ import kotlin.test.assertEquals
 
 class  CryptoExchangeServiceTest {
 
-    lateinit var mockRestTemplate: RestTemplate
+    @Mock lateinit var mockRestTemplate: RestTemplate
+    @Mock lateinit var mockAdvertisementRepository: AdvertisementRepository
+    @Mock lateinit var mockAdvertisementMapper: AdvertisementMapper
+    @Mock lateinit var mockUserService: UserService
     lateinit var service: CryptoExchangeService
 
     @BeforeTest
     fun setUp() {
-        mockRestTemplate = mock(RestTemplate::class.java)
-        service = CryptoExchangeService(mockRestTemplate, "baseUrl")
+        MockitoAnnotations.openMocks(this)
+        service = CryptoExchangeService(
+            mockRestTemplate,
+            mockAdvertisementRepository,
+            mockAdvertisementMapper,
+            mockUserService,
+            "baseUrl"
+        )
     }
 
     @Test
@@ -33,9 +45,9 @@ class  CryptoExchangeServiceTest {
 
         `when`(mockRestTemplate.getForObject<List<List<Any>>>(anyString(), any())).thenReturn(listOf( cot1, cot2 ))
 
-        val actualCoinPrice = service.getSymbolPriceLast24hr(SymbolsEnum.AAVEUSDT)
+        val actualCoinPrice = service.getSymbolPriceLast24hr(Symbol.AAVEUSDT)
 
-        val expected = CoinPrices(SymbolsEnum.AAVEUSDT.name, listOf(
+        val expected = CoinPrices(Symbol.AAVEUSDT.name, listOf(
             PriceWithDatetime(98.9, date00minutes),
             PriceWithDatetime(99.9, date15minutes)
         ))

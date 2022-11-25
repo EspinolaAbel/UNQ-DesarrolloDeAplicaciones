@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.model.configuration
+package ar.edu.unq.desapp.grupoN.desapp.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

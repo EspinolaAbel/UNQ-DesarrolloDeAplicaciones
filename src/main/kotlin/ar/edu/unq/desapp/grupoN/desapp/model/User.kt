@@ -1,17 +1,15 @@
-package ar.edu.unq.desapp.grupoN.desapp.persistence.entity
+package ar.edu.unq.desapp.grupoN.desapp.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity(name="AppUser")
-class User(
+data class User(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
         var name: String,
         var lastName: String,
+        @Column(unique = true)
         var email: String,
         var address: String,
         var password: String,
@@ -21,4 +19,5 @@ class User(
 
     constructor() : this(null, "", "", "", "", "","", "") {
     }
+
 }
