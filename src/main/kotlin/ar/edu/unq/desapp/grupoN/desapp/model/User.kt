@@ -15,6 +15,8 @@ data class User(
         var password: String,
         var cvu: String,
         var walletAddress: String,
+        var reputation: Int = 0,
+        var closedOperations: Int = 0,
     ) {
 
     constructor() : this(null, "", "", "", "", "","", "") {

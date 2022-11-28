@@ -6,17 +6,17 @@ import org.jetbrains.annotations.NotNull
 import javax.validation.constraints.Positive
 
 open class AdvertisementDTO(
-    @NotNull
+    @field:NotNull
     var userId: Int,
-    @NotNull
+    @field:NotNull
     var operationType: OperationType,
-    @NotNull
+    @field:NotNull
     var symbol: Symbol,
-    @NotNull @Positive
+    @field:NotNull @field:Positive
     var cryptoAmount: Double,
-    @NotNull @Positive
+    @field:NotNull @field:Positive
     var cryptoPrice: Double,
-    @NotNull @Positive
+    @field:NotNull @field:Positive
     var fiatPrice: Double
 ) {
 }

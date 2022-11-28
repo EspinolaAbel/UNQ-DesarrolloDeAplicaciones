@@ -1,6 +1,9 @@
 package ar.edu.unq.desapp.grupoN.desapp.webservice
 
 import ar.edu.unq.desapp.grupoN.desapp.model.Operation
+import ar.edu.unq.desapp.grupoN.desapp.model.OperationException
+import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus
+import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus.*
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.service.CryptoExchangeService
@@ -11,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 import java.util.*
-import kotlin.properties.Delegates
+import javax.validation.Valid
 
 @RequestMapping("cryptos")
 @RestController
@@ -30,7 +33,7 @@ class CryptoExchangeController(
     }
 
     @PostMapping("p2p/advertisements")
-    fun createAdvertisement(@RequestBody adDto: AdvertisementDTO): ResponseEntity<ApiResponse<String>> {
+    fun createAdvertisement(@Valid @RequestBody adDto: AdvertisementDTO): ResponseEntity<ApiResponse<String>> {
         return try {
             val ad = service.createAdvertisement(adDto)
             val location: URI = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -58,14 +61,15 @@ class CryptoExchangeController(
     }
 
     @PostMapping("p2p/operations")
-    fun createOperation(@RequestBody dto: OperationDTO): Any? {
+    fun createOperation(@Valid @RequestBody dto: OperationRequestDTO): ResponseEntity<ApiResponse<Operation>> {
         return try {
             val op = service.createOperation(dto)
             val location: URI = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(op.id).toUri();
-            OperationUpdateResponse.of(op)
-        } catch (e: CryptoExchangeException) {
+            ResponseEntity.created(location).body(ApiResponse(op))
+        }
+        catch (e: CryptoExchangeException) {
             val m = mapOf("message" to ""+e.message)
             ResponseEntity.badRequest().body(ApiResponse(null, m))
         }
@@ -77,23 +81,34 @@ class CryptoExchangeController(
     }
 
     @GetMapping("p2p/operations/{opUUID}")
-    fun createOperation(@PathVariable opUUID: UUID): Any? {
+    fun getOperation(@PathVariable opUUID: UUID): Any? {
         return service.getOperation(opUUID)
             .map { o -> ApiResponse(o) }
             .map { r -> ResponseEntity.ok(r) }
             .orElse(ResponseEntity.notFound().build())
     }
 
-    class OperationUpdateResponse {
-        var quantity by Delegates.notNull<Double>()
-        lateinit var crypto: Symbol
+    enum class OperationUpdateStatus(val operationStatus: OperationStatus) {
+        userdeposit(INTERESTED_USER_DEPOSIT),
+        completed(COMPLETED),
+        cancelled(CANCELLED),
+    }
 
-        companion object {
-            fun of(op: Operation): OperationUpdateResponse {
-                val result = OperationUpdateResponse()
-                result.crypto = op.advertisement.symbol
-                result.quantity = op.advertisement.cryptoAmount
-                return result
+    @PatchMapping("p2p/operations/{opUUID}/{updateStatus}")
+    fun updateOperation(
+        @PathVariable opUUID: UUID,
+        @PathVariable updateStatus: OperationUpdateStatus,
+        @RequestParam userId: Int // TODO: borrar cuando tenga andando spring security
+    ): ResponseEntity<ApiResponse<Any>> {
+        return try {
+            val body = service.updateOperation(opUUID, updateStatus.operationStatus, userId)
+            ResponseEntity.ok(ApiResponse(body))
+        }
+        catch (e: Exception) {
+            when (e) {
+                is CryptoExchangeException, is OperationException ->
+                    ResponseEntity.badRequest().body(ApiResponse(null, mapOf("error" to e.message!!)))
+                else -> throw e
             }
         }
     }

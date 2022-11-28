@@ -6,7 +6,8 @@ import java.util.*
 
 interface OperationView {
 
-    fun getTimestamp(): Instant
+    fun getCreationTimestamp(): Instant
+    fun getUpdateTimestamp(): Instant
     fun getCrypto(): Symbol
     fun getAmount(): Double
     fun getPrice(): Double

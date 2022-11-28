@@ -5,6 +5,7 @@ import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.PriceWithDatetime
 import ar.edu.unq.desapp.grupoN.desapp.model.mapping.AdvertisementMapper
 import ar.edu.unq.desapp.grupoN.desapp.persistence.AdvertisementRepository
+import ar.edu.unq.desapp.grupoN.desapp.persistence.OperationRepository
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -20,6 +21,7 @@ class  CryptoExchangeServiceTest {
 
     @Mock lateinit var mockRestTemplate: RestTemplate
     @Mock lateinit var mockAdvertisementRepository: AdvertisementRepository
+    @Mock lateinit var mockOperationRepository: OperationRepository
     @Mock lateinit var mockAdvertisementMapper: AdvertisementMapper
     @Mock lateinit var mockUserService: UserService
     lateinit var service: CryptoExchangeService
@@ -31,6 +33,7 @@ class  CryptoExchangeServiceTest {
             mockRestTemplate,
             mockAdvertisementRepository,
             mockAdvertisementMapper,
+            mockOperationRepository,
             mockUserService,
             "baseUrl"
         )

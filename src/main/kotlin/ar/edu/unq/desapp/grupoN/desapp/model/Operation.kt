@@ -1,7 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.model
 
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.OperationDTO
+import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus.*
 import org.hibernate.annotations.GenericGenerator
+import java.time.Duration
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -20,21 +21,113 @@ data class Operation(
     @OneToOne
     @JoinColumn(name="advertisementId")
     val advertisement: Advertisement,
-    //val symbol: Symbol,
-    /** "...el usuario indicará el precio del critpoactivo al que desea vender o comprar" */
-    val price: Double,
-    val operation: OperationType,
-    var timestamp: Instant,
-    @Column(columnDefinition = "VARCHAR(20)")
+    var creationTimestamp: Instant = Instant.now(),
+    var updateTimestamp: Instant = Instant.now(),
+    @Column(columnDefinition = "VARCHAR(50)")
     @Enumerated(EnumType.STRING)
-    var status: OperationStatus = OperationStatus.IN_PROGRESS
+    var status: OperationStatus = STARTED,
+    var cryptoPriceClose: Double? = null
 ) {
+    /** no llamar directamente, usar state() */
+    @Transient
+    private var _state: OperationStatusState? = null
+
+    private fun state(): OperationStatusState {
+        if (_state == null || _state?.status != status) {
+            _state = when (status) {
+                STARTED -> OperationStatusState.Started(this)
+                INTERESTED_USER_DEPOSIT -> OperationStatusState.InterestedUserDeposit(this)
+                COMPLETED -> OperationStatusState.Completed(this)
+                CANCELLED -> OperationStatusState.Cancelled(this)
+            }
+        }
+        return _state!!
+    }
+
+    fun updateStatus(userId: Int, newStatus: OperationStatus) {
+        throwIfCannotBeUpdatedToNewStatus(newStatus)
+        throwIfStatusCannotBeUpdatedByUser(userId, newStatus)
+        status = newStatus
+        updateTimestamp = Instant.now()
+        if (newStatus == COMPLETED) {
+            advertisement.setAsCompleted()
+            cryptoPriceClose = advertisement.cryptoPrice * advertisement.cryptoAmount
+        }
+    }
+
+    private fun throwIfStatusCannotBeUpdatedByUser(userId: Int, newStatus: OperationStatus) {
+        if (!state().userCanUpdateStatus(userId, newStatus))
+            throw OperationException.operationStatusCannotBeUpdatedByUser(id!!, status, userId)
+    }
+
+    private fun throwIfCannotBeUpdatedToNewStatus(newStatus: OperationStatus) {
+        if (!state().newStatusIsValid(newStatus))
+            throw OperationException.operationInvalidStatus(id!!, status, newStatus)
+    }
+
+    fun getCryptoPrice(): Double = advertisement.cryptoPrice
+    fun getCryptoSymbol(): Symbol = advertisement.symbol
+    fun duration(): Duration = Duration.between(creationTimestamp, updateTimestamp)
+    fun isClosed(): Boolean = state().isClosed()
+    fun wasSuccessfullyCompleted() = status == COMPLETED
+    fun wasCancelled() = status == CANCELLED
+
 }
 
 enum class OperationType {
-    BUY, SELL, CANCEL
+    BUY, SELL
 }
 
 enum class OperationStatus {
-    IN_PROGRESS, FINISHED
+    /** Se creó una nueva operación */
+    STARTED,
+    /** El usuario interesado en el aviso hace el depósito */
+    INTERESTED_USER_DEPOSIT,
+    /** Se concreta toda la operación y el usuario dueño del aviso la dá por finalizada */
+    COMPLETED,
+    /** El usuario que canceló la operación */
+    CANCELLED;
+
+    companion object {
+        fun previousStatus(status: OperationStatus): OperationStatus? {
+            if (status.ordinal < 1)
+                return null
+            return OperationStatus.values()[status.ordinal - 1]
+        }
+    }
+}
+
+abstract class OperationStatusState(val op: Operation, val status: OperationStatus) {
+
+    open fun isClosed(): Boolean = false
+
+    fun newStatusIsValid(newStatus: OperationStatus): Boolean {
+        val expectedCurrentStatus = OperationStatus.previousStatus(newStatus)
+        return expectedCurrentStatus != null && expectedCurrentStatus == op.status
+    }
+
+    abstract fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus): Boolean;
+
+    class Started(op: Operation): OperationStatusState(op, STARTED) {
+        override fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus) =
+            newStatus == CANCELLED ||userId == op.user.id
+    }
+
+    class InterestedUserDeposit(op: Operation): OperationStatusState(op, INTERESTED_USER_DEPOSIT) {
+        override fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus) =
+            newStatus == CANCELLED || userId == op.advertisement.user?.id
+    }
+
+    class Completed(op: Operation): OperationStatusState(op, COMPLETED) {
+        override fun isClosed(): Boolean = true
+        override fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus) =
+            false
+    }
+
+    class Cancelled(op: Operation): OperationStatusState(op, CANCELLED) {
+        override fun isClosed(): Boolean = true
+        override fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus) =
+            false
+    }
+
 }

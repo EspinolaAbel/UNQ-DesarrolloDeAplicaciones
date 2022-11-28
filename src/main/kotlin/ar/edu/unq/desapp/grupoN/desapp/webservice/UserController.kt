@@ -43,7 +43,7 @@ class UserController(private val service: UserService) {
 
     @GetMapping("{id}")
     fun getUser(@PathVariable id: Int): Optional<User> {
-        return service.getUser(id);
+        return service.findUser(id);
     }
 
 }
