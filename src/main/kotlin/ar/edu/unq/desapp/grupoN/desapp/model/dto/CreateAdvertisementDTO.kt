@@ -5,7 +5,7 @@ import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import org.jetbrains.annotations.NotNull
 import javax.validation.constraints.Positive
 
-open class AdvertisementDTO(
+open class CreateAdvertisementDTO(
     @field:NotNull
     var userId: Int,
     @field:NotNull
@@ -15,8 +15,5 @@ open class AdvertisementDTO(
     @field:NotNull @field:Positive
     var cryptoAmount: Double,
     @field:NotNull @field:Positive
-    var cryptoPrice: Double,
-    @field:NotNull @field:Positive
-    var fiatPrice: Double
-) {
-}
+    var cryptoPrice: Double
+)

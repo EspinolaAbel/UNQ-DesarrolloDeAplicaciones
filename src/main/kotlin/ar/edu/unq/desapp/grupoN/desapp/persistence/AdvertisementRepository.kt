@@ -1,6 +1,7 @@
 package ar.edu.unq.desapp.grupoN.desapp.persistence
 
 import ar.edu.unq.desapp.grupoN.desapp.model.Advertisement
+import ar.edu.unq.desapp.grupoN.desapp.model.dto.AdvertisementView
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -9,9 +10,6 @@ import java.util.*
 
 @Repository
 interface AdvertisementRepository: JpaRepository<Advertisement, UUID> {
-
-    @Query("select ad from Operation op right join op.advertisement ad where op is null")
-    fun findAvailable(): List<Advertisement>
 
     @Query(
         "from Advertisement ad " +
@@ -23,5 +21,19 @@ interface AdvertisementRepository: JpaRepository<Advertisement, UUID> {
             ") "
     )
     fun findActiveAndNotInUse(@Param("adUUID")adUUID: UUID): Optional<Advertisement>
+
+    @Query(
+        "select " +
+            "a.creationTimestamp as creationTimestamp, " +
+            "a.id as id, " +
+            "a.symbol as crypto, " +
+            "a.cryptoAmount as amount, " +
+            "a.cryptoPrice as price " +
+        "from Advertisement a " +
+        "where a.active = true and a.user.id = :userId")
+    fun findActiveAdvertisements(@Param("userId") userId: Int): List<AdvertisementView>
+
+    @Query("select ad from Operation op right join op.advertisement ad where op is null")
+    fun findAvailable(): List<Advertisement>
 
 }

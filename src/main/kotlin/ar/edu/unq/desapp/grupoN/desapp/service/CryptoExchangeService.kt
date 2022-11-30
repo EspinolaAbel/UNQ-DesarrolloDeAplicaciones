@@ -5,27 +5,24 @@ import ar.edu.unq.desapp.grupoN.desapp.model.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.model.mapping.AdvertisementMapper
 import ar.edu.unq.desapp.grupoN.desapp.persistence.AdvertisementRepository
 import ar.edu.unq.desapp.grupoN.desapp.persistence.OperationRepository
-import ar.edu.unq.desapp.grupoN.desapp.service.exeption.CryptoExchangeException
-import org.springframework.beans.factory.annotation.Value
+import ar.edu.unq.desapp.grupoN.desapp.service.client.BcraClient
+import ar.edu.unq.desapp.grupoN.desapp.service.client.BinanceClient
+import ar.edu.unq.desapp.grupoN.desapp.service.exception.CryptoExchangeException
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForObject
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.transaction.Transactional
 import kotlin.math.abs
 
-/** <a href="https://binance-docs.github.io/apidocs/spot/en/#introduction">Binance API Docs</a> */
 @Service
 class CryptoExchangeService(
-    val restTemplate: RestTemplate = RestTemplate(),
     val advertisementRepository: AdvertisementRepository,
     val advertisementMapper: AdvertisementMapper,
     val operationRepository: OperationRepository,
     val userService: UserService,
-    @Value("\${app.api.binance.url}")
-    val baseUrl: String
+    val binanceClient: BinanceClient,
+    val bcraClient: BcraClient,
 ) {
 
     companion object {
@@ -33,62 +30,76 @@ class CryptoExchangeService(
     }
 
     fun getPrice(symbol: Symbol): CoinPrice {
-        return restTemplate.getForObject(baseUrl + "v3/ticker/price?symbol=${symbol}")
+        return binanceClient.getPrice(symbol)
     }
 
     fun getSymbolPriceLast24hr(symbol: Symbol): CoinPrices {
-        val startTime = Instant.now().minus(24, ChronoUnit.HOURS).toEpochMilli()
-        val interval = "15m"
-        val url = baseUrl + "v3/klines?symbol=${symbol}&interval=${interval}&startTime=${startTime}"
-
-        val last24hCandles = restTemplate.getForObject<List<List<Any>>>(url)
-
-        val last24hPrices = last24hCandles.stream()
-            .map { c -> PriceWithDatetime((c[4] as String).toDouble(), Instant.ofEpochMilli(c[6] as Long) ) }
-            .toList()
-        return CoinPrices(symbol.name, last24hPrices)
+        return binanceClient.getSymbolPriceLast24hr(symbol)
     }
 
-    fun createAdvertisement(dto: AdvertisementDTO): Advertisement {
+    fun createAdvertisement(dto: CreateAdvertisementDTO): Advertisement {
         val ad = advertisementMapper.toNewModel(dto)
         ad.user = userService.findUserOrThrow(dto.userId)
         ad.active = true
-        // TODO: descomentar cuando tenga la cache andando
-        //if (!validateCryptoPriceIsInRange(dto.symbol, dto.cryptoPrice, RANGE_PERCENTAGE))
-        //    throw CryptoExchangeException.advertisementPriceIsOutOfRange(dto.symbol, dto.cryptoPrice, rangePercentage)
+        if (!validateCryptoPriceIsInRange(dto.symbol, dto.cryptoPrice))
+            throw CryptoExchangeException.advertisementPriceIsOutOfRange(dto.symbol, dto.cryptoPrice, RANGE_PERCENTAGE)
         return advertisementRepository.save(ad)
     }
 
-    private fun validateCryptoPriceIsInRange(symbol: Symbol, price: Double, rangePercentage: Double): Boolean {
+    private fun validateCryptoPriceIsInRange(symbol: Symbol, price: Double): Boolean {
         val currentPrice = getPrice(symbol).price
-        val priceDifference = abs(price - currentPrice)
-        return priceDifference <= (currentPrice * rangePercentage / 100)
+        val priceDifference = abs(price - currentPrice.value)
+        return priceDifference <= (currentPrice.value * RANGE_PERCENTAGE / 100)
     }
 
+    fun getAdvertisements(userId: Int): UserAdvertisementsResponse {
+        val user = userService.findUserOrThrow(userId)
+        return UserAdvertisementsResponse(user, advertisementRepository.findActiveAdvertisements(userId))
+    }
 
-    private fun findAdvertisementOrThrow(adId: UUID?): Advertisement = adId?.let { advertisementRepository.findById(it) }
-        ?.orElseThrow { CryptoExchangeException.advertisementDoesNotExists(adId) }!!
-
-    fun getAdvertisements(findAll: Boolean): List<AdvertisementFullDTO> {
+    /*
+    fun getAdvertisements(findAll: Boolean): List<UserAdvertisementResponseDTO> {
         val ads = if (findAll)
             advertisementRepository.findAll()
         else
             advertisementRepository.findAvailable()
 
-        return ads.stream()
-            .map{ model -> advertisementMapper.toFullDto(model) }
+        val dtos = ads.stream()
+            .map{ model -> advertisementMapper.toUserAdvertisementDTO(model) }
             .toList()
+        try {
+            val fiatExchangeRate = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
+            dtos.stream().forEach { dto -> setFiatPrice(dto, fiatExchangeRate) }
+        } catch (_: Exception) { }
+        return dtos
     }
+    */
 
-    fun getAdvertisement(adUUID: UUID): Optional<AdvertisementFullDTO> {
+    fun getAdvertisement(adUUID: UUID): Optional<AdvertisementResponseDTO> {
         return advertisementRepository.findById(adUUID)
             .filter(Objects::nonNull)
             .map{ model -> advertisementMapper.toFullDto(model)}
+            .map{ dto: AdvertisementResponseDTO ->
+                try {
+                    val fiatExchangeRate = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
+                    setFiatPrice(dto, fiatExchangeRate)
+                } catch (_: Exception) { }
+                dto
+            }
     }
+
+    private fun setFiatPrice(dto: AdvertisementResponseDTO, exchangeRate: Double) {
+       dto.fiatPrice = CurrencyAmount(CurrencyCode.ARS,
+           dto.cryptoPrice.value * dto.cryptoAmount * exchangeRate
+       )
+    }
+    //private fun setFiatPrice(dto: UserAdvertisementResponseDTO, exchangeRate: Double) {
+        //dto.fiatPrice = dto.cryptoPrice * dto.cryptoAmount * exchangeRate
+    //}
 
     @Transactional
     fun createOperation(dto: OperationRequestDTO): Operation {
-        val adUUID: UUID = dto.advertisement!!;
+        val adUUID: UUID = dto.advertisement!!
         val ad = advertisementRepository.findActiveAndNotInUse(adUUID)
             .orElseThrow {
                 throw CryptoExchangeException.advertisementNotFoundOrInUse(adUUID)
@@ -98,8 +109,9 @@ class CryptoExchangeService(
         return operationRepository.save(operation)
     }
 
-    fun getOperations(): List<OperationView> {
-        return operationRepository.findAllProjection()
+    fun getOperations(userId: Int): UserOperationsResponse {
+        val user = userService.findUserOrThrow(userId)
+        return UserOperationsResponse(user, operationRepository.findActiveOperations(userId))
     }
 
     fun getOperation(opUUID: UUID): Optional<Operation> {
@@ -127,14 +139,13 @@ class CryptoExchangeService(
     }
 
     private fun updateUsersStatistics(op: Operation) {
-        var points = 0
         if (op.wasSuccessfullyCompleted()) {
-            points = if (op.duration().toMinutes() <= 30) 10 else 5
+            val points = if (op.duration().toMinutes() <= 30) 10 else 5
             userService.updateUserPunctuationOperation(op.user.id!!, points, true)
             userService.updateUserPunctuationOperation(op.advertisement.user?.id!!, points, true)
         }
         else if (op.wasCancelled()) {
-            points = -20
+            val points = -20
             userService.updateUserPunctuationOperation(op.user.id!!, points, false)
         }
     }
@@ -142,29 +153,58 @@ class CryptoExchangeService(
     private fun findOperationOrThrow(opUUID: UUID): Operation = opUUID.let { operationRepository.findById(it) }
         .orElseThrow { CryptoExchangeException.operationDoesNotExists(opUUID) }!!
 
+    fun getUserOperationsVolume(userId: Int): UserOperationsVolumeResponseDTO {
+        val cryptoVolumes: List<UserCryptoVolume> = operationRepository.userVolume(userId).stream()
+            .map { v ->
+                val currentCryptoPrice = binanceClient.getPrice(v.getCrypto()).price.value
+                val arsUsd = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
+                UserCryptoVolume(
+                    v.getCrypto(),
+                    v.getNominalAmount(),
+                    CurrencyAmount(CurrencyCode.USD, currentCryptoPrice),
+                    CurrencyAmount(CurrencyCode.ARS, currentCryptoPrice * arsUsd )
+                )
+            }
+            .toList()
+        var totalValueArs = 0.0
+        var totalValueUsd = 0.0
+        cryptoVolumes.forEach{ ucv ->
+            totalValueArs += ucv.currentPriceArs.value
+            totalValueUsd += ucv.currentPriceUsd.value
+        }
+        return UserOperationsVolumeResponseDTO(
+            Instant.now(),
+            setOf(
+                CurrencyAmount(CurrencyCode.USD, totalValueUsd),
+                CurrencyAmount(CurrencyCode.ARS, totalValueArs)
+            ),
+            cryptoVolumes
+        )
+    }
+
 }
 
-class OperationUpdate {
+class OperationUpdate(op: Operation, user: User) {
     val crypto: Symbol
     val quantity: Double
-    val price: Double
-    val total: Double
+    val price: CurrencyAmount
+    var total: CurrencyAmount?
     val userId: Int
     val userName: String
     val userOperations: Int
-    val reputation: Int
+    val points: Int
     val destinationAddress: String
     val action: String
 
-    constructor (op: Operation, user: User) {
+    init {
         crypto = op.advertisement.symbol
         quantity = op.advertisement.cryptoAmount
         price = op.advertisement.cryptoPrice
-        total = -1.0 // TODO: en pesos
+        total = CurrencyAmount(price.currency, quantity * price.value)
         userId = op.user.id!!
         userName = "${op.user.name} ${op.user.lastName}"
         userOperations = user.closedOperations
-        reputation = user.reputation
+        points = user.points
         destinationAddress = when (op.advertisement.operationType) {
             OperationType.BUY -> op.advertisement.user!!.cvu
             OperationType.SELL -> op.advertisement.user!!.walletAddress
@@ -178,3 +218,19 @@ class OperationUpdate {
     }
 
 }
+
+open class UserActivityResponse(user: User) {
+    val userName: String = "${user.name} ${user.lastName}"
+    val reputation: Any = if (user.reputation > 0) user.reputation else "Sin operaciones"
+    val closedOperations: Int = user.closedOperations
+}
+
+class UserAdvertisementsResponse(
+    @JsonIgnore val user: User,
+    val advertisements: List<AdvertisementView>,
+): UserActivityResponse(user)
+
+class UserOperationsResponse(
+    @JsonIgnore val user: User,
+    val operations: List<OperationView>,
+): UserActivityResponse(user)

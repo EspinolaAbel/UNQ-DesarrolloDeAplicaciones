@@ -1,6 +1,7 @@
 package ar.edu.unq.desapp.grupoN.desapp.model
 
 import org.hibernate.annotations.GenericGenerator
+import java.time.Instant
 import java.util.*
 import javax.persistence.*
 
@@ -17,9 +18,12 @@ data class Advertisement(
     var operationType: OperationType,
     var symbol: Symbol,
     var cryptoAmount: Double,
-    var cryptoPrice: Double,
-    var fiatPrice: Double,
-    var active: Boolean = true
+    @Embedded
+    @AttributeOverride( name = "currency", column = Column(name = "priceCurrency"))
+    @AttributeOverride( name = "value", column = Column(name = "priceValue"))
+    var cryptoPrice: CurrencyAmount,
+    var active: Boolean = true,
+    var creationTimestamp: Instant = Instant.now(),
 ) {
     fun setAsCompleted() {
         this.active = false

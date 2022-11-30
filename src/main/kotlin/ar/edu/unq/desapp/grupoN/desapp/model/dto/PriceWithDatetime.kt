@@ -1,8 +1,9 @@
 package ar.edu.unq.desapp.grupoN.desapp.model.dto
 
+import java.io.Serializable
 import java.time.Instant
 
-class PriceWithDatetime(val price: Double, val datetime: Instant) {
+class PriceWithDatetime(val price: Double, val datetime: Instant): Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

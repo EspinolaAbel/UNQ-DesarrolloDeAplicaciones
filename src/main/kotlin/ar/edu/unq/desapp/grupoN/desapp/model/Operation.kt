@@ -21,12 +21,15 @@ data class Operation(
     @OneToOne
     @JoinColumn(name="advertisementId")
     val advertisement: Advertisement,
-    var creationTimestamp: Instant = Instant.now(),
-    var updateTimestamp: Instant = Instant.now(),
+    val creationTimestamp: Instant = Instant.now(),
+    var updateTimestamp: Instant = creationTimestamp,
     @Column(columnDefinition = "VARCHAR(50)")
     @Enumerated(EnumType.STRING)
     var status: OperationStatus = STARTED,
-    var cryptoPriceClose: Double? = null
+    @Embedded
+    @AttributeOverride( name = "currency", column = Column(name = "priceCloseCurrency"))
+    @AttributeOverride( name = "value", column = Column(name = "priceCloseValue"))
+    var cryptoPriceClose: CurrencyAmount? = null
 ) {
     /** no llamar directamente, usar state() */
     @Transient
@@ -51,7 +54,10 @@ data class Operation(
         updateTimestamp = Instant.now()
         if (newStatus == COMPLETED) {
             advertisement.setAsCompleted()
-            cryptoPriceClose = advertisement.cryptoPrice * advertisement.cryptoAmount
+            cryptoPriceClose = CurrencyAmount(
+                CurrencyCode.USD,
+                advertisement.cryptoPrice.value * advertisement.cryptoAmount
+            )
         }
     }
 
@@ -65,8 +71,6 @@ data class Operation(
             throw OperationException.operationInvalidStatus(id!!, status, newStatus)
     }
 
-    fun getCryptoPrice(): Double = advertisement.cryptoPrice
-    fun getCryptoSymbol(): Symbol = advertisement.symbol
     fun duration(): Duration = Duration.between(creationTimestamp, updateTimestamp)
     fun isClosed(): Boolean = state().isClosed()
     fun wasSuccessfullyCompleted() = status == COMPLETED
@@ -102,11 +106,13 @@ abstract class OperationStatusState(val op: Operation, val status: OperationStat
     open fun isClosed(): Boolean = false
 
     fun newStatusIsValid(newStatus: OperationStatus): Boolean {
+        if (newStatus == CANCELLED)
+            return true
         val expectedCurrentStatus = OperationStatus.previousStatus(newStatus)
         return expectedCurrentStatus != null && expectedCurrentStatus == op.status
     }
 
-    abstract fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus): Boolean;
+    abstract fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus): Boolean
 
     class Started(op: Operation): OperationStatusState(op, STARTED) {
         override fun userCanUpdateStatus(userId: Int, newStatus: OperationStatus) =

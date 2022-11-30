@@ -1,14 +1,14 @@
 package ar.edu.unq.desapp.grupoN.desapp.webservice
 
-import ar.edu.unq.desapp.grupoN.desapp.model.Operation
-import ar.edu.unq.desapp.grupoN.desapp.model.OperationException
-import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus
+import ar.edu.unq.desapp.grupoN.desapp.model.*
 import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus.*
-import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.service.CryptoExchangeService
-import ar.edu.unq.desapp.grupoN.desapp.service.exeption.CryptoExchangeException
-import ar.edu.unq.desapp.grupoN.desapp.service.exeption.UserApiException
+import ar.edu.unq.desapp.grupoN.desapp.service.UserActivityResponse
+import ar.edu.unq.desapp.grupoN.desapp.service.UserAdvertisementsResponse
+import ar.edu.unq.desapp.grupoN.desapp.service.UserOperationsResponse
+import ar.edu.unq.desapp.grupoN.desapp.service.exception.CryptoExchangeException
+import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -33,7 +33,7 @@ class CryptoExchangeController(
     }
 
     @PostMapping("p2p/advertisements")
-    fun createAdvertisement(@Valid @RequestBody adDto: AdvertisementDTO): ResponseEntity<ApiResponse<String>> {
+    fun createAdvertisement(@Valid @RequestBody adDto: CreateAdvertisementDTO): ResponseEntity<ApiResponse<String>> {
         return try {
             val ad = service.createAdvertisement(adDto)
             val location: URI = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -41,23 +41,33 @@ class CryptoExchangeController(
                 .buildAndExpand(ad.id).toUri();
             ResponseEntity.created(location).build()
         }
-        catch (e: UserApiException) {
-            val errors = mapOf<String,String>("user" to ""+e.message)
-            ResponseEntity.badRequest().body(ApiResponse(null, errors))
+        catch (e: Exception) {
+            when (e) {
+                is CryptoExchangeException, is UserApiException -> {
+                    val errors = mapOf<String, String>("user" to "" + e.message)
+                    ResponseEntity.badRequest().body(ApiResponse(null, errors))
+                }
+                else -> throw e
+            }
         }
     }
 
     @GetMapping("p2p/advertisements/{adUUID}")
-    fun getAdvertisement(@PathVariable adUUID: UUID): ResponseEntity<ApiResponse<AdvertisementFullDTO>> {
+    fun getAdvertisement(@PathVariable adUUID: UUID): ResponseEntity<ApiResponse<AdvertisementResponseDTO>> {
         return service.getAdvertisement(adUUID)
             .map { o -> ApiResponse(o) }
             .map { r -> ResponseEntity.ok(r) }
             .orElse(ResponseEntity.notFound().build())
     }
 
+    //@GetMapping("p2p/advertisements")
+    //fun getAdvertisements(@RequestParam(required = false, defaultValue = "false") findAll: Boolean): ApiResponse<List<UserAdvertisementResponseDTO>> {
+    //    return ApiResponse(service.getAdvertisements(findAll))
+    //}
+
     @GetMapping("p2p/advertisements")
-    fun getAdvertisements(@RequestParam(required = false, defaultValue = "false") findAll: Boolean): ApiResponse<List<AdvertisementFullDTO>> {
-        return ApiResponse(service.getAdvertisements(findAll))
+    fun getAdvertisements(@RequestParam userId: Int): ApiResponse<UserAdvertisementsResponse> {
+        return ApiResponse(service.getAdvertisements(userId))
     }
 
     @PostMapping("p2p/operations")
@@ -76,8 +86,8 @@ class CryptoExchangeController(
     }
 
     @GetMapping("p2p/operations")
-    fun getOperations(): List<OperationView> {
-        return service.getOperations()
+    fun getOperations(@RequestParam userId: Int): ApiResponse<UserOperationsResponse> {
+        return ApiResponse(service.getOperations(userId))
     }
 
     @GetMapping("p2p/operations/{opUUID}")
@@ -91,7 +101,7 @@ class CryptoExchangeController(
     enum class OperationUpdateStatus(val operationStatus: OperationStatus) {
         userdeposit(INTERESTED_USER_DEPOSIT),
         completed(COMPLETED),
-        cancelled(CANCELLED),
+        cancel(CANCELLED),
     }
 
     @PatchMapping("p2p/operations/{opUUID}/{updateStatus}")
@@ -111,6 +121,11 @@ class CryptoExchangeController(
                 else -> throw e
             }
         }
+    }
+
+    @GetMapping("p2p/operations/user-volume")
+    fun userOperationsVolume(@RequestParam userId: Int): ApiResponse<UserOperationsVolumeResponseDTO> {
+        return ApiResponse(service.getUserOperationsVolume(userId))
     }
 
 }

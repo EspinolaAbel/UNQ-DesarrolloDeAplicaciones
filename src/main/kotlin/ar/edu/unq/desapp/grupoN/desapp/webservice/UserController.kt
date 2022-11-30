@@ -3,7 +3,7 @@ package ar.edu.unq.desapp.grupoN.desapp.webservice
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.UserDTO
 import ar.edu.unq.desapp.grupoN.desapp.model.User
 import ar.edu.unq.desapp.grupoN.desapp.service.UserService
-import ar.edu.unq.desapp.grupoN.desapp.service.exeption.UserApiException
+import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

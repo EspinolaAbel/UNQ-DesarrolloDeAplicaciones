@@ -1,10 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.service
 
-import ar.edu.unq.desapp.grupoN.desapp.model.Operation
-import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus
 import ar.edu.unq.desapp.grupoN.desapp.model.User
 import ar.edu.unq.desapp.grupoN.desapp.persistence.UserRepository
-import ar.edu.unq.desapp.grupoN.desapp.service.exeption.UserApiException
+import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -27,9 +25,11 @@ class UserService(private val userRepo: UserRepository) {
 
     fun updateUserPunctuationOperation(userId: Int, points: Int, operationWasClosed: Boolean) {
         val user = findUserOrThrow(userId)
-        user.reputation += points
+        user.points += points
         if (operationWasClosed)
             user.closedOperations += 1
+        if (user.closedOperations != 0)
+            user.reputation = user.points / user.closedOperations
         userRepo.save(user)
     }
 

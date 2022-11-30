@@ -1,6 +1,5 @@
-package ar.edu.unq.desapp.grupoN.desapp.service.exeption
+package ar.edu.unq.desapp.grupoN.desapp.service.exception
 
-import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import java.util.*
 

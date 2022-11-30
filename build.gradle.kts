@@ -33,12 +33,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("io.springfox:springfox-boot-starter:3.0.0")
+
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("javax.cache:cache-api")
+	implementation("org.ehcache:ehcache")
+
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.mapstruct:mapstruct:1.5.3.Final")
 	kapt("org.mapstruct:mapstruct-processor:1.5.3.Final")
-	//annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")

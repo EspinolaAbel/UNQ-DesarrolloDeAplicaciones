@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.service.exeption
+package ar.edu.unq.desapp.grupoN.desapp.service.exception
 
 class UserApiException : RuntimeException {
 
