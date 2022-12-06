@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.model.dto
+package ar.edu.unq.desapp.grupoN.desapp.service.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*

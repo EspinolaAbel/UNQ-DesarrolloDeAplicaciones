@@ -22,6 +22,8 @@ class UserService(
 
     fun findUser(id: Int): Optional<User> = userRepo.findById(id);
 
+    fun findByEmail(email: String): Optional<User> = userRepo.findByEmail(email)
+
     fun findUserOrThrow(userId: Int): User = findUser(userId)
         .orElseThrow { UserApiException.userWithIdDoesNotExists(userId) }
 

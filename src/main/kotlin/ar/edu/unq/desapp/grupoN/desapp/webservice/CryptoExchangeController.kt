@@ -1,6 +1,6 @@
 package ar.edu.unq.desapp.grupoN.desapp.webservice
 
-import ar.edu.unq.desapp.grupoN.desapp.configuration.JwtUtil
+import ar.edu.unq.desapp.grupoN.desapp.configuration.jwt.JwtUtil
 import ar.edu.unq.desapp.grupoN.desapp.model.*
 import ar.edu.unq.desapp.grupoN.desapp.model.OperationStatus.*
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.*
@@ -8,10 +8,10 @@ import ar.edu.unq.desapp.grupoN.desapp.service.CryptoExchangeService
 import ar.edu.unq.desapp.grupoN.desapp.service.UserAdvertisementsResponse
 import ar.edu.unq.desapp.grupoN.desapp.service.UserOperationsResponse
 import ar.edu.unq.desapp.grupoN.desapp.service.aop.LogExecutionTime
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.service.exception.CryptoExchangeException
 import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
 import io.swagger.annotations.ApiOperation
-import org.springframework.context.annotation.PropertySource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder

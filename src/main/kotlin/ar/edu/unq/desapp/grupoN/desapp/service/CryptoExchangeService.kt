@@ -1,12 +1,12 @@
 package ar.edu.unq.desapp.grupoN.desapp.service
 
 import ar.edu.unq.desapp.grupoN.desapp.model.*
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.model.mapping.AdvertisementMapper
 import ar.edu.unq.desapp.grupoN.desapp.persistence.AdvertisementRepository
 import ar.edu.unq.desapp.grupoN.desapp.persistence.OperationRepository
 import ar.edu.unq.desapp.grupoN.desapp.service.client.BcraClient
 import ar.edu.unq.desapp.grupoN.desapp.service.client.BinanceClient
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.*
 import ar.edu.unq.desapp.grupoN.desapp.service.exception.CryptoExchangeException
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.stereotype.Service
@@ -108,7 +108,6 @@ class CryptoExchangeService(
     fun updateOperation(opUUID: UUID, newStatus: OperationStatus, userId: Int): OperationUpdate {
         val op = findOperationOrThrow(opUUID)
         val userCaller = getUserFromOperation(op, userId)
-        // TODO: ver diferencia de precios
         op.updateStatus(userId, newStatus)
         if (op.isClosed())
             updateUsersStatistics(op)

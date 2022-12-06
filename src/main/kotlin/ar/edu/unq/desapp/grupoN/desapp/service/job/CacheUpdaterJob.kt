@@ -4,7 +4,7 @@ import ar.edu.unq.desapp.grupoN.desapp.configuration.COIN_PRICE_CACHE
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyAmount
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyCode
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrice
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrice
 import ar.edu.unq.desapp.grupoN.desapp.service.CryptoExchangeService
 import org.quartz.Job
 import org.quartz.JobExecutionContext

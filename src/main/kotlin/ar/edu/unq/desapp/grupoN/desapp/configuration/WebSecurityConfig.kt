@@ -1,7 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.configuration
 
+import ar.edu.unq.desapp.grupoN.desapp.configuration.jwt.JwtAuthEntryPoint
+import ar.edu.unq.desapp.grupoN.desapp.configuration.jwt.JwtFilter
 import ar.edu.unq.desapp.grupoN.desapp.persistence.UserRepository
-import ar.edu.unq.desapp.grupoN.desapp.webservice.JwtAuthEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager

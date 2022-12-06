@@ -3,9 +3,9 @@ package ar.edu.unq.desapp.grupoN.desapp.model.mapping
 import ar.edu.unq.desapp.grupoN.desapp.model.Advertisement
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyAmount
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyCode
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.AdvertisementResponseDTO
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CreateAdvertisementDTO
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.UserAdvertisementResponseDTO
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.AdvertisementResponseDTO
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CreateAdvertisementDTO
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.UserAdvertisementResponseDTO
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingConstants

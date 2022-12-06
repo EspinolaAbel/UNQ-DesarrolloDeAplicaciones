@@ -1,7 +1,7 @@
 package ar.edu.unq.desapp.grupoN.desapp.persistence
 
 import ar.edu.unq.desapp.grupoN.desapp.model.Advertisement
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.AdvertisementView
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.AdvertisementView
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

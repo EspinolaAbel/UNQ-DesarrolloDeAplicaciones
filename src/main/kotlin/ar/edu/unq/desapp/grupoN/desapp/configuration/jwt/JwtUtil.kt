@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.configuration
+package ar.edu.unq.desapp.grupoN.desapp.configuration.jwt
 
 import ar.edu.unq.desapp.grupoN.desapp.model.User
 import com.auth0.jwt.JWT
@@ -8,8 +8,6 @@ import com.auth0.jwt.exceptions.JWTCreationException
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.Payload
-import com.sun.security.auth.LdapPrincipal
-import com.sun.security.auth.UserPrincipal
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component

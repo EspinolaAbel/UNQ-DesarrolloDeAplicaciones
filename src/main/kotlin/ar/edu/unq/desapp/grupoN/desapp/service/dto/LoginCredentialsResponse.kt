@@ -1,3 +1,3 @@
-package ar.edu.unq.desapp.grupoN.desapp.webservice.dto
+package ar.edu.unq.desapp.grupoN.desapp.service.dto
 
 data class LoginCredentialsResponse(val accessToken: String, val type: String = "Bearer")

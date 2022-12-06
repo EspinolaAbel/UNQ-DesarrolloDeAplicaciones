@@ -34,3 +34,48 @@ NOTES:
 KNOWN ISSUES:
 
 * spring-security está configurado y funcionando pero debido a problemas con la autenticación de usuarios ningún endpoint está segurizado en esta versión
+
+---------------------------------------------------------------------
+
+TAG entrega2y3
+
+---------------------------------------------------------------------
+
+NEW FEATURES:
+
+* Modelo y lógica de negocio completados
+* SWAGGER: Documentación de endpoints
+* SERVICIOS API-REST: Se implementaron nuevos endpoints
+  - POST 	/api/auth/login
+    Obtención de token JWT para poder utilizar los endpoints segurizados de la aplicación
+  - GET 	/api/cryptos/p2p/operations
+    Obtener todas las operaciones activas de un usuario
+  - GET 	/api/cryptos/p2p/operations/{opUUID}
+    Obtener operacion por su UUID
+  - POST 	/api/cryptos/p2p/advertisements
+    Crear una nueva publicación
+  - GET 	/api/cryptos/p2p/advertisements
+    Obtener todas las publicaciones activas de un usuario
+  - GET 	/api/cryptos/p2p/advertisements/{adUUID}
+    Obtener publicación por su UUID
+  - POST 	/api/cryptos/p2p/operations
+    Crear una nueva operación de compra-venta
+  - PATCH 	/api/cryptos/p2p/operations/{opUUID}/{updateStatus}
+    Actualizar el estado de una operación mediante su UUID
+  - GET 	/api/cryptos/p2p/operations/user-volume
+    Obtener el volumen de operaciones de un usuario
+* Auditoria de controllers con Spring AOP. Se loguea request y respuestas de los endpoints
+* Spring security integrado con autenticación a través de token JWT
+* Test unitario
+* Test de integración con spring-boot y junit 5
+* Test de arquitectura con archunit
+* Implementación de cache para el guardado de las cotizaciones de cryptoactivos
+
+
+NOTES:
+
+* implementación finalizada de lógica de negocio y arquitectura de la aplicación
+
+KNOWN ISSUES:
+
+- sin issues encontrados

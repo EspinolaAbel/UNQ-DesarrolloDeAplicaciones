@@ -3,10 +3,10 @@ package ar.edu.unq.desapp.grupoN.desapp.service.client
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyAmount
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyCode
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.BinanceCoinPrice
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrice
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.PriceWithDatetime
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.BinanceCoinPrice
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrice
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrices
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.PriceWithDatetime
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
@@ -49,7 +49,7 @@ class BinanceClient(
         val entity = HttpEntity<Void>(HttpHeaders())
         val response = restTemplate.exchange(url, HttpMethod.GET, entity, listBinanceCoinPricesTypeReference).body!!
         return response.stream()
-            .map { bcp -> CoinPrice(bcp.symbol, CurrencyAmount(CurrencyCode.USD, bcp.price))}
+            .map { bcp -> CoinPrice(bcp.symbol, CurrencyAmount(CurrencyCode.USD, bcp.price)) }
             .toList()
     }
 

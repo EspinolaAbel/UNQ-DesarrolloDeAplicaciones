@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.model.dto
+package ar.edu.unq.desapp.grupoN.desapp.service.dto
 
 import ar.edu.unq.desapp.grupoN.desapp.model.validation.UserPassword
 import javax.validation.constraints.Email

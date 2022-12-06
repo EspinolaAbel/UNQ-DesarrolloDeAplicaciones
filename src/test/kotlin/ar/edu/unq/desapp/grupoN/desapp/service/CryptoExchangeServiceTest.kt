@@ -2,8 +2,8 @@ package ar.edu.unq.desapp.grupoN.desapp.service
 
 import ar.edu.unq.desapp.grupoN.desapp.model.CurrencyCode
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.PriceWithDatetime
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrices
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.PriceWithDatetime
 import ar.edu.unq.desapp.grupoN.desapp.model.mapping.AdvertisementMapper
 import ar.edu.unq.desapp.grupoN.desapp.persistence.AdvertisementRepository
 import ar.edu.unq.desapp.grupoN.desapp.persistence.OperationRepository

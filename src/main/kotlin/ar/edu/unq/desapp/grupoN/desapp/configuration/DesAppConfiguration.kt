@@ -1,7 +1,7 @@
 package ar.edu.unq.desapp.grupoN.desapp.configuration
 
 import ar.edu.unq.desapp.grupoN.desapp.webservice.UserController
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CreateUserDTO
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CreateUserDTO
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.context.event.ApplicationStartedEvent

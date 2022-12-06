@@ -1,8 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.webservice
 
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CreateUserDTO
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CreateUserDTO
 import ar.edu.unq.desapp.grupoN.desapp.model.User
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.ApiResponse
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.ApiResponse
 import ar.edu.unq.desapp.grupoN.desapp.service.UserService
 import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
 import io.swagger.annotations.ApiOperation

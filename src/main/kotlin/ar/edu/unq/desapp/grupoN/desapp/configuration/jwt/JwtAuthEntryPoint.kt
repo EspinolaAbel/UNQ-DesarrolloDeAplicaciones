@@ -1,4 +1,4 @@
-package ar.edu.unq.desapp.grupoN.desapp.webservice
+package ar.edu.unq.desapp.grupoN.desapp.configuration.jwt
 
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint

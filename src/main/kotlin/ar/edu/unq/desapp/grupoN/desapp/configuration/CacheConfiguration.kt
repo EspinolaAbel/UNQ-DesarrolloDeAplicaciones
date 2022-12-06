@@ -1,8 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.configuration
 
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrice
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrice
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CoinPrices
 import ar.edu.unq.desapp.grupoN.desapp.service.client.Casa
 import org.ehcache.config.CacheConfiguration
 import org.ehcache.config.builders.CacheConfigurationBuilder
@@ -25,7 +25,7 @@ const val COIN_PRICES_CACHE = "CoinPricesCache"
 
 @Configuration
 @EnableCaching
-class AppCacheConfiguration {
+class CacheConfiguration {
 
     @Bean
     fun ehcacheManager(): CacheManager {
@@ -36,7 +36,7 @@ class AppCacheConfiguration {
             .keyType(SimpleKey::class.java).valueType(Casa::class.java)
             .build()
 
-        CacheBuilder<Symbol,CoinPrice>(COIN_PRICE_CACHE, provider, cacheManager)
+        CacheBuilder<Symbol, CoinPrice>(COIN_PRICE_CACHE, provider, cacheManager)
             .keyType(Symbol::class.java).valueType(CoinPrice::class.java)
             .build()
 

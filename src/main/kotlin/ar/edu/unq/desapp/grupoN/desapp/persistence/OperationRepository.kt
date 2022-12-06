@@ -1,8 +1,8 @@
 package ar.edu.unq.desapp.grupoN.desapp.persistence
 
 import ar.edu.unq.desapp.grupoN.desapp.model.Operation
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.CryptoVolumeView
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.OperationView
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.CryptoVolumeView
+import ar.edu.unq.desapp.grupoN.desapp.service.dto.OperationView
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
