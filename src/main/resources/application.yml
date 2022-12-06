@@ -15,8 +15,18 @@ spring:
     password: ''
     driverClassName: org.h2.Driver
 
-app.api:
-  binance.url: "https://api1.binance.com/api/"
+app:
+  api:
+    binance.url: "https://api1.binance.com/api/"
+    bcra.url: "https://www.dolarsi.com/api/api.php?type=valoresprincipales"
+  security:
+    secret: "94179b12190bcc3dd1f51afd723b9d775da04f005ecb8e2550dc0c26e823ee7d"
+  jobs:
+    cache:
+      interval: 60_000
+
+logging.level.org.springframework.cache: TRACE
+logging.level.org.springframework.security: DEBUG
 
 # spring-dev tools
 server.error.include-stacktrace: never

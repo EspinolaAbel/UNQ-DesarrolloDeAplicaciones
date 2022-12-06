@@ -2,11 +2,12 @@ package ar.edu.unq.desapp.grupoN.desapp.model.dto
 
 import ar.edu.unq.desapp.grupoN.desapp.model.OperationType
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.jetbrains.annotations.NotNull
 import javax.validation.constraints.Positive
 
 open class CreateAdvertisementDTO(
-    @field:NotNull
+    @JsonIgnore
     var userId: Int,
     @field:NotNull
     var operationType: OperationType,

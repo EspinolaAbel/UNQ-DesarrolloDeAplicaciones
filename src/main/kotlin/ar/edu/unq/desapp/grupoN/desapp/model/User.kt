@@ -1,5 +1,6 @@
 package ar.edu.unq.desapp.grupoN.desapp.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity(name="AppUser")
@@ -12,6 +13,7 @@ data class User(
         @Column(unique = true)
         var email: String,
         var address: String,
+        @JsonIgnore
         var password: String,
         var cvu: String,
         var walletAddress: String,

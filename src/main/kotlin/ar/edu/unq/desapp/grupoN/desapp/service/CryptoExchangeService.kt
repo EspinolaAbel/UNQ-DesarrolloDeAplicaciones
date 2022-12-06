@@ -33,6 +33,10 @@ class CryptoExchangeService(
         return binanceClient.getPrice(symbol)
     }
 
+    fun getPrices(values: Array<Symbol>): List<CoinPrice> {
+        return binanceClient.getPrices(values)
+    }
+
     fun getSymbolPriceLast24hr(symbol: Symbol): CoinPrices {
         return binanceClient.getSymbolPriceLast24hr(symbol)
     }
@@ -57,32 +61,14 @@ class CryptoExchangeService(
         return UserAdvertisementsResponse(user, advertisementRepository.findActiveAdvertisements(userId))
     }
 
-    /*
-    fun getAdvertisements(findAll: Boolean): List<UserAdvertisementResponseDTO> {
-        val ads = if (findAll)
-            advertisementRepository.findAll()
-        else
-            advertisementRepository.findAvailable()
-
-        val dtos = ads.stream()
-            .map{ model -> advertisementMapper.toUserAdvertisementDTO(model) }
-            .toList()
-        try {
-            val fiatExchangeRate = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
-            dtos.stream().forEach { dto -> setFiatPrice(dto, fiatExchangeRate) }
-        } catch (_: Exception) { }
-        return dtos
-    }
-    */
-
     fun getAdvertisement(adUUID: UUID): Optional<AdvertisementResponseDTO> {
         return advertisementRepository.findById(adUUID)
             .filter(Objects::nonNull)
             .map{ model -> advertisementMapper.toFullDto(model)}
             .map{ dto: AdvertisementResponseDTO ->
                 try {
-                    val fiatExchangeRate = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
-                    setFiatPrice(dto, fiatExchangeRate)
+                    val fiatExchangeRate = bcraClient.getCurrentArPesoUsDollarExchangeRate().sellPrice()
+                    setFiatPrice(dto, fiatExchangeRate!!)
                 } catch (_: Exception) { }
                 dto
             }
@@ -157,12 +143,12 @@ class CryptoExchangeService(
         val cryptoVolumes: List<UserCryptoVolume> = operationRepository.userVolume(userId).stream()
             .map { v ->
                 val currentCryptoPrice = binanceClient.getPrice(v.getCrypto()).price.value
-                val arsUsd = bcraClient.getCurrentArPesoUsDollarExchangeRate().v
+                val arsUsd = bcraClient.getCurrentArPesoUsDollarExchangeRate().sellPrice()
                 UserCryptoVolume(
                     v.getCrypto(),
                     v.getNominalAmount(),
                     CurrencyAmount(CurrencyCode.USD, currentCryptoPrice),
-                    CurrencyAmount(CurrencyCode.ARS, currentCryptoPrice * arsUsd )
+                    CurrencyAmount(CurrencyCode.ARS, currentCryptoPrice * arsUsd!! )
                 )
             }
             .toList()

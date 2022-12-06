@@ -3,7 +3,7 @@ package ar.edu.unq.desapp.grupoN.desapp.configuration
 import ar.edu.unq.desapp.grupoN.desapp.model.Symbol
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrice
 import ar.edu.unq.desapp.grupoN.desapp.model.dto.CoinPrices
-import ar.edu.unq.desapp.grupoN.desapp.service.client.UsdEntry
+import ar.edu.unq.desapp.grupoN.desapp.service.client.Casa
 import org.ehcache.config.CacheConfiguration
 import org.ehcache.config.builders.CacheConfigurationBuilder
 import org.ehcache.config.builders.ExpiryPolicyBuilder
@@ -19,25 +19,28 @@ import javax.cache.CacheManager
 import javax.cache.Caching
 import javax.cache.spi.CachingProvider
 
+const val USD_ENTRY_CACHE = "UsdEntryCache"
+const val COIN_PRICE_CACHE = "CoinPriceCache"
+const val COIN_PRICES_CACHE = "CoinPricesCache"
 
 @Configuration
 @EnableCaching
 class AppCacheConfiguration {
 
     @Bean
-    fun ehcacheManager(): CacheManager? {
+    fun ehcacheManager(): CacheManager {
         val provider: CachingProvider = Caching.getCachingProvider()
         val cacheManager: CacheManager = provider.cacheManager
 
-        CacheBuilder<SimpleKey,UsdEntry>("UsdEntryCache", provider, cacheManager)
-            .keyType(SimpleKey::class.java).valueType(UsdEntry::class.java)
+        CacheBuilder<SimpleKey,Casa>(USD_ENTRY_CACHE, provider, cacheManager)
+            .keyType(SimpleKey::class.java).valueType(Casa::class.java)
             .build()
 
-        CacheBuilder<Symbol,CoinPrice>("CoinPriceCache", provider, cacheManager)
+        CacheBuilder<Symbol,CoinPrice>(COIN_PRICE_CACHE, provider, cacheManager)
             .keyType(Symbol::class.java).valueType(CoinPrice::class.java)
             .build()
 
-        CacheBuilder<Symbol, CoinPrices>("CoinPricesCache", provider, cacheManager)
+        CacheBuilder<Symbol, CoinPrices>(COIN_PRICES_CACHE, provider, cacheManager)
             .keyType(Symbol::class.java).valueType(CoinPrices::class.java)
             .build()
 

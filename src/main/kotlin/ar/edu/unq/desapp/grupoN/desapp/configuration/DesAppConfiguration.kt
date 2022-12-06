@@ -1,16 +1,18 @@
 package ar.edu.unq.desapp.grupoN.desapp.configuration
 
 import ar.edu.unq.desapp.grupoN.desapp.webservice.UserController
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.UserDTO
+import ar.edu.unq.desapp.grupoN.desapp.model.dto.CreateUserDTO
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.context.event.ApplicationStartedEvent
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.PropertySource
 import org.springframework.context.event.EventListener
 import org.springframework.core.env.Environment
 import javax.annotation.PostConstruct
 
 @Configuration
+@PropertySource("classpath:apirestdocs.properties")
 class DesAppConfiguration(val om: ObjectMapper, val env: Environment, val userController: UserController) {
 
     @PostConstruct
@@ -24,12 +26,13 @@ class DesAppConfiguration(val om: ObjectMapper, val env: Environment, val userCo
             return
 
         for (i in 1..3) {
-            var user = UserDTO(
+            var user = CreateUserDTO(
                 "Username"+i,
                 "Lastname"+i,
                 "user${i}@mail.com",
                 "address ${i} user${i}",
-                "abc123D%", "%022d".format(i),
+                "abc123D%",
+                "%022d".format(i),
                 "%08d".format(i)
             )
             userController.saveUser(user)

@@ -1,9 +1,11 @@
 package ar.edu.unq.desapp.grupoN.desapp.webservice
 
-import ar.edu.unq.desapp.grupoN.desapp.model.dto.UserDTO
+import ar.edu.unq.desapp.grupoN.desapp.model.dto.CreateUserDTO
 import ar.edu.unq.desapp.grupoN.desapp.model.User
+import ar.edu.unq.desapp.grupoN.desapp.model.dto.ApiResponse
 import ar.edu.unq.desapp.grupoN.desapp.service.UserService
 import ar.edu.unq.desapp.grupoN.desapp.service.exception.UserApiException
+import io.swagger.annotations.ApiOperation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,8 +17,9 @@ import javax.validation.Valid
 @RestController
 class UserController(private val service: UserService) {
 
+    @ApiOperation(value = "\${user.save-user.value}", notes = "\${user.save-user.notes}")
     @PostMapping
-    fun saveUser(@Valid @RequestBody user: UserDTO): ResponseEntity<Any> {
+    fun saveUser(@Valid @RequestBody user: CreateUserDTO): ResponseEntity<Any> {
         try {
             val u = User(
                 null,
@@ -28,7 +31,7 @@ class UserController(private val service: UserService) {
                 user.cvu,
                 user.walletAddress
             )
-            var newUser = service.saveUser(u);
+            val newUser = service.saveUser(u);
             return ResponseEntity.created(URI("user/${newUser.id}")).build();
         }
         catch (e: UserApiException) {
@@ -36,14 +39,20 @@ class UserController(private val service: UserService) {
         }
     }
 
+    @ApiOperation(value = "\${user.list-users.value}", notes = "\${user.list-users.notes}")
     @GetMapping
-    fun getUsers(): List<User> {
-        return service.getUsers()
+    fun getUsers(): ApiResponse<List<User>> {
+        return ApiResponse(service.getUsers())
     }
 
+    @ApiOperation(value = "\${user.get-user.value}", notes = "\${user.get-user.notes}")
     @GetMapping("{id}")
-    fun getUser(@PathVariable id: Int): Optional<User> {
-        return service.findUser(id);
+    fun getUser(@PathVariable id: Int): ResponseEntity<ApiResponse<User>> {
+        val optUser = service.findUser(id);
+        return if (optUser.isPresent)
+            ResponseEntity.ok().body(ApiResponse(optUser.get()))
+        else
+            ResponseEntity.notFound().build()
     }
 
 }

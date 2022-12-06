@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
 
-class UserDTO(
+class CreateUserDTO(
     @field:NotBlank @field:Size(min=3, max=30)
     var name: String,
     @field:NotBlank @field:Size(min=3, max=30)
